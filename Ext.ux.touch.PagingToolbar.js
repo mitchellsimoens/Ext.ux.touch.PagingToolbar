@@ -61,6 +61,7 @@ Ext.ux.touch.PagingToolbar = Ext.extend(Ext.Toolbar, {
 	//private
 	initToolbar: function() {
 		this.cmp.addDocked(this);
+		this.cmp.doComponentLayout();
 	},
 
 	//private
@@ -152,6 +153,7 @@ Ext.ux.touch.PagingToolbar = Ext.extend(Ext.Toolbar, {
 	//private
 	createSelectField: function() {
 		return {
+			name: "pt-options",
 			options: [
 				{ text: "Go to", value: null }
 			],
