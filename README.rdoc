@@ -1,0 +1,13 @@
+== Ext.ux.touch.PagingToolbar
+
+A plugin to add a Paging Toolbar to anything that uses a store such as Ext.DataView, Ext.List, and Ext.ux.TouchGridPanel.
+
+= Usage
+
+   {
+       xtype: 'touchgridpanel',
+       ...,
+       plugins: [new Ext.ux.touch.PagingToolbar()],
+       ...
+   }
+
