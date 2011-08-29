@@ -117,7 +117,7 @@ Ext.ux.touch.PagingToolbar = Ext.extend(Ext.Toolbar, {
 		var proxy = store.getProxy();
 		var reader = proxy.getReader();
 
-		return reader.jsonData.total;
+		return Number (Ext.DomQuery.selectNode(reader.totalProperty, proxy.reader.rawData).textContent);
 	},
 
 	//private
