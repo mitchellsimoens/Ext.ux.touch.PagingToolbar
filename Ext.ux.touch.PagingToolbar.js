@@ -11,14 +11,14 @@
     Date         : 2/5/2011
 */
 
-Ext.ns("Ext.ux.touch");
+Ext.ns('Ext.ux.touch');
 
 Ext.ux.touch.PagingToolbar = Ext.extend(Ext.Toolbar, {
 	/**
-	  * Dock Location. Default - "bottom" Options: "bottom", "top", "left", "right"
+	  * Dock Location. Default - 'bottom' Options: 'bottom', 'top', 'left', 'right'
 	  * @type String
 	  */
-	dock: "bottom",
+	dock: 'bottom',
 	/**
 	  * True to hide/show buttons when option not available. False to enable/disable
 	  * @type Boolean
@@ -37,7 +37,7 @@ Ext.ux.touch.PagingToolbar = Ext.extend(Ext.Toolbar, {
 
 	//private
 	constructor: function(config) {
-		if (typeof config !== "object") { config = {}; }
+		config = config || {};
 		Ext.apply(config, this.setupToolbar() || {});
 
 		Ext.apply(this, config);
@@ -46,16 +46,21 @@ Ext.ux.touch.PagingToolbar = Ext.extend(Ext.Toolbar, {
 
 	//private
 	init: function(cmp) {
-		this.cmp = cmp;
+        var me = this,
+            store;
 
-		if (typeof this.store === "undefined" && typeof cmp.store === "object") {
-			this.store = cmp.store;
+        me.cmp = cmp;
+
+		if (!me.store && typeof cmp.store === 'object') {
+			me.store = cmp.store;
 		}
 
-		this.store.on("load", this.fillSelectField, this, { single: true });
-		this.store.on("load", this.handleStoreLoad, this);
+        store = me.store;
 
-		cmp.on("afterrender", this.initToolbar, this);
+		store.on('load', me.fillSelectField, me, { single: true });
+		store.on('load', me.handleStoreLoad, me);
+
+		cmp.on('afterrender', me.initToolbar, me, { single : true });
 	},
 
 	//private
@@ -66,29 +71,31 @@ Ext.ux.touch.PagingToolbar = Ext.extend(Ext.Toolbar, {
 
 	//private
 	setupToolbar: function() {
+        var me = this;
+
 		Ext.applyIf(this.prevBtnCfg, {
-			text: "Previous",
-			ui: "back"
+			text : 'Previous',
+			ui   : 'back'
 		});
 		Ext.applyIf(this.nextBtnCfg, {
-			text: "Next",
-			ui: "forward"
+			text : 'Next',
+			ui   : 'forward'
 		});
 
-		this.prevBtn = new Ext.Button(this.prevBtnCfg);
-		this.nextBtn = new Ext.Button(this.nextBtnCfg);
+		me.prevBtn = new Ext.Button(me.prevBtnCfg);
+		me.nextBtn = new Ext.Button(me.nextBtnCfg);
 
-		this.prevBtn.on("tap", this.handlePrevPage, this);
-		this.nextBtn.on("tap", this.handleNextPage, this);
+	    me.prevBtn.on('tap', me.handlePrevPage, me);
+		me.nextBtn.on('tap', me.handleNextPage, me);
 
-		this.selectField = new Ext.form.Select(this.createSelectField());
+		me.selectField = new Ext.form.Select(me.createSelectField());
 
 		return {
 			items: [
-				this.prevBtn,
-				{ xtype: "spacer" },
-				this.selectField,
-				this.nextBtn
+				me.prevBtn,
+				{ xtype: 'spacer' },
+				me.selectField,
+				me.nextBtn
 			]
 		};
 	},
@@ -110,28 +117,32 @@ Ext.ux.touch.PagingToolbar = Ext.extend(Ext.Toolbar, {
 
 	/**
      * Returns the number of records possible in Store
-     * @publich
+     * @return {Number} total The total number of records
      */
 	getTotalRecs: function() {
-		var store = this.store;
-		var proxy = store.getProxy();
-		var reader = proxy.getReader();
+		var store  = this.store,
+		    proxy  = store.getProxy(),
+		    reader = proxy.getReader();
 
-		return reader.jsonData.total;
+        if (reader.type === 'json') {
+            return reader.jsonData.total;
+        } else if (reader.type === 'xml') {
+            return Number (Ext.DomQuery.selectNode(reader.totalProperty, proxy.reader.rawData).textContent);
+        }
 	},
 
 	//private
 	handleStoreLoadBtn: function(store, btn, pageMatch) {
-		var doThis = "hide";
+		var doThis = 'hide';
 		if (store.currentPage === pageMatch) {
 			if (!this.hideBtn) {
-				doThis = "disable";
+				doThis = 'disable';
 			}
 		} else {
 			if (this.hideBtn) {
-				doThis = "show";
+				doThis = 'show';
 			} else {
-				doThis = "enable"
+				doThis = 'enable'
 			}
 		}
 		btn[doThis]();
@@ -139,27 +150,30 @@ Ext.ux.touch.PagingToolbar = Ext.extend(Ext.Toolbar, {
 
 	//private
 	handleStoreLoad: function(store, recs, success) {
+        var me = this;
+
 		if (success) {
-			this.handleStoreLoadBtn(store, this.prevBtn, 1);
+			me.handleStoreLoadBtn(store, me.prevBtn, 1);
 
-			var totalNum = this.getTotalRecs();
-			var numPages = Math.ceil(totalNum / store.pageSize);
-			this.handleStoreLoadBtn(store, this.nextBtn, numPages);
+			var totalNum = me.getTotalRecs(),
+			    numPages = Math.ceil(totalNum / store.pageSize);
 
-			this.selectField.setValue(store.currentPage);
+			me.handleStoreLoadBtn(store, me.nextBtn, numPages);
+
+			me.selectField.setValue(store.currentPage);
 		}
 	},
 
 	//private
 	createSelectField: function() {
 		return {
-			name: "pt-options",
-			options: [
-				{ text: "Go to", value: null }
+			name      : 'pt-options',
+			options   : [
+				{ text: 'Go to', value: null }
 			],
-			listeners: {
-				scope: this,
-				change: this.onPageChoose
+			listeners : {
+				scope  : this,
+				change : this.onPageChoose
 			}
 		};
 	},
@@ -167,13 +181,12 @@ Ext.ux.touch.PagingToolbar = Ext.extend(Ext.Toolbar, {
 	//private
 	fillSelectField: function(store, recs, success) {
 		if (success) {
-			var totalNum = this.getTotalRecs();
-			var numPages = Math.ceil(totalNum / store.pageSize);
-
-			var options = [];
+			var totalNum = this.getTotalRecs(),
+			    numPages = Math.ceil(totalNum / store.pageSize),
+			    options  = [];
 
 			for (var i = 1; i <= numPages; i++) {
-				options.push({ text: "Page "+i, value: i });
+				options.push({ text: 'Page '+i, value: i });
 			}
 
 			this.selectField.setOptions(options);
@@ -181,4 +194,4 @@ Ext.ux.touch.PagingToolbar = Ext.extend(Ext.Toolbar, {
 	}
 });
 
-Ext.preg("pagingtoolbar", Ext.ux.touch.PagingToolbar);
+Ext.preg('pagingtoolbar', Ext.ux.touch.PagingToolbar);
