@@ -125,7 +125,8 @@ Ext.ux.touch.PagingToolbar = Ext.extend(Ext.Toolbar, {
 		    reader = proxy.getReader();
 
         if (reader.type === 'json') {
-            return reader.jsonData.total;
+        	var acc = reader.createAccessor(reader.totalProperty);
+            return acc(reader.jsonData);
         } else if (reader.type === 'xml') {
             return Number (Ext.DomQuery.selectNode(reader.totalProperty, proxy.reader.rawData).textContent);
         }
